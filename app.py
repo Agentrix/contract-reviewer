@@ -12,6 +12,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Bridge Streamlit Cloud secrets → os.environ so downstream modules work unchanged
+if "ANTHROPIC_API_KEY" in st.secrets:
+    os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
+
 from ingest import extract_text, extract_from_bytes
 from knowledge_base import build_knowledge_base
 from reviewer import review_contract

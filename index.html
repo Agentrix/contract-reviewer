@@ -238,14 +238,14 @@
 
 <!-- ── TOGGLE NAV ──────────────────────────────────────────── -->
 <div id="nav">
-  <button class="nav-btn active" id="btnDemo"   onclick="showView('demo')">Demo</button>
-  <button class="nav-btn"        id="btnVision" onclick="showView('vision')">System Vision</button>
+  <button class="nav-btn active" id="btnVision" onclick="showView('vision')">System Vision</button>
+  <button class="nav-btn"        id="btnDemo"   onclick="showView('demo')">Demo</button>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════
      DEMO VIEW
 ══════════════════════════════════════════════════════════ -->
-<div id="demoView">
+<div id="demoView" style="display:none;">
 <div class="app-shell">
 
   <!-- Sidebar -->
@@ -393,7 +393,7 @@
 <!-- ══════════════════════════════════════════════════════════
      VISION VIEW
 ══════════════════════════════════════════════════════════ -->
-<div id="visionView" style="display:none;">
+<div id="visionView">
   <div style="max-width: 960px; margin: 0 auto; padding: 3.5rem 2.5rem 5rem;">
 
     <header class="reveal" style="margin-bottom: 3rem;">

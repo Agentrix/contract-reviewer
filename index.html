@@ -402,7 +402,7 @@
         AI-Assisted Contract<br /><em>Review System</em>
       </h1>
       <p style="font-size: 0.92rem; color: var(--ink-60); line-height: 1.65; max-width: 560px; font-weight: 300;">
-        A triage layer that reads every contract before your team does. It sorts by urgency, cites precedent, and tells lawyers exactly where to focus.
+        Contracts sit in a queue. Sales doesn't know which deals are blocked. Finance can't forecast because legal hasn't cleared the paperwork. This system fixes that. Every contract gets read before your team touches it, sorted by urgency, and surfaced to legal, sales, and finance as a shared view of where every deal actually stands.
       </p>
     </header>
 
@@ -495,10 +495,10 @@
     <div class="hairline" style="margin-bottom: 3rem;"></div>
 
     <section class="reveal" style="margin-bottom: 3rem;">
-      <div class="section-label" style="margin-bottom: 1.5rem;">03 &nbsp;— &nbsp;What the Lawyer Opens</div>
+      <div class="section-label" style="margin-bottom: 1.5rem;">03 &nbsp;— &nbsp;Two teams. One pipeline.</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div style="background: white; border: 1px solid var(--ink-12); border-radius: 12px; padding: 1.5rem;">
-          <div class="section-label" style="margin-bottom: 1rem;">Queue view — the day at a glance</div>
+          <div class="section-label" style="margin-bottom: 1rem;">Legal — contract queue</div>
           <div style="display: flex; flex-direction: column; gap: 0.6rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; border-radius: 8px; border-left: 3px solid var(--urgent); background: rgba(192,40,26,0.04); border: 1px solid rgba(192,40,26,0.12); border-left-width: 3px;">
               <span style="font-size: 0.7rem; font-weight: 600; color: var(--urgent);">● URGENT</span>
@@ -515,19 +515,31 @@
           </div>
         </div>
         <div style="background: white; border: 1px solid var(--ink-12); border-radius: 12px; padding: 1.5rem;">
-          <div class="section-label" style="margin-bottom: 1rem;">Contract detail — clause briefing</div>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div style="padding: 0.75rem; background: var(--stone); border-radius: 8px;">
-              <div style="font-size: 0.65rem; font-family: 'DM Mono', monospace; color: var(--ink-35); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem;">AI Summary</div>
-              <div style="font-size: 0.74rem; color: var(--ink-60); line-height: 1.55;">Mutual NDA with GlobalTech Ventures. Three deviations: NY law, IP assignment, and uncapped liability. Senior review required before signing.</div>
+          <div class="section-label" style="margin-bottom: 1rem;">Sales — pipeline status</div>
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <div style="padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid rgba(192,40,26,0.12); background: rgba(192,40,26,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem;">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--ink);">GlobalTech Ventures</div>
+                <span style="font-size: 0.62rem; font-weight: 600; color: var(--urgent); font-family: 'DM Mono', monospace;">BLOCKED</span>
+              </div>
+              <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace;">Proposal · Contract: urgent, 4 issues flagged</div>
             </div>
-            <div style="padding: 0.75rem; border: 1px solid rgba(192,40,26,0.2); border-radius: 8px; border-left: 3px solid var(--urgent);">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;"><span style="font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--urgent);">● URGENT &nbsp; Clause 8 — Governing Law</span></div>
-              <div style="font-size: 0.72rem; color: var(--ink-60); line-height: 1.5;">New York law. PortSwigger's standard position is English law. Redline: replace with <em>"England and Wales"</em>.</div>
+            <div style="padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid rgba(165,104,0,0.12); background: rgba(165,104,0,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem;">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--ink);">Meridian Financial</div>
+                <span style="font-size: 0.62rem; font-weight: 600; color: var(--review); font-family: 'DM Mono', monospace;">IN REVIEW</span>
+              </div>
+              <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace;">Negotiation · Contract: 2 days in legal</div>
             </div>
-            <div style="padding: 0.75rem; border: 1px solid rgba(192,40,26,0.2); border-radius: 8px; border-left: 3px solid var(--urgent);">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;"><span style="font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--urgent);">● URGENT &nbsp; Clause 4 — IP Ownership</span></div>
-              <div style="font-size: 0.72rem; color: var(--ink-60); line-height: 1.5;">All work product assigned to GlobalTech. Contradicts PortSwigger's standard position. 12 prior instances flagged. Redline provided.</div>
+            <div style="padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid rgba(26,112,56,0.12); background: rgba(26,112,56,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem;">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--ink);">Acme Technology</div>
+                <span style="font-size: 0.62rem; font-weight: 600; color: var(--clear); font-family: 'DM Mono', monospace;">CLEARED</span>
+              </div>
+              <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace;">Closing · Contract: ready to countersign</div>
+            </div>
+            <div style="padding: 0.6rem 0.85rem; border-radius: 8px; background: var(--stone); margin-top: 0.1rem;">
+              <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace; line-height: 1.6;">3 contracts in pipeline &nbsp;·&nbsp; avg legal review 2.4 days &nbsp;·&nbsp; 1 clearing this week</div>
             </div>
           </div>
         </div>
@@ -557,7 +569,7 @@
     <section class="reveal" style="margin-bottom: 3rem;">
       <div style="max-width: 680px; margin: 0 auto; text-align: center; padding: 2rem 0;">
         <div class="section-label" style="margin-bottom: 1.5rem;">The principle</div>
-        <p class="pull-quote">"The AI doesn't invent legal positions. It applies positions your team has already agreed on, retrieved from a structured playbook and cited in every finding. The lawyer stays in control; the AI handles the reading."</p>
+        <p class="pull-quote">"Legal stops drowning in unread contracts. Sales stops guessing which deals are waiting on a signature. Finance stops forecasting blind. The same pipeline, finally visible to everyone who needs it."</p>
       </div>
     </section>
 
@@ -569,17 +581,17 @@
         <div style="background: white; border: 1px solid var(--ink-12); border-radius: 10px; padding: 1.25rem;">
           <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.6rem;">Phase 1 — Now</div>
           <div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink);">AI advises, lawyer reads all</div>
-          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">Every contract gets pre-reviewed. The lawyer still reads everything but arrives briefed, knowing where to focus and what the AI found before opening the document.</div>
+          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">Every contract gets pre-reviewed. The lawyer arrives briefed, knowing exactly where to focus. Sales can see which deals are sitting in legal. No more chasing for updates.</div>
         </div>
         <div style="background: white; border: 1px solid var(--ink-12); border-radius: 10px; padding: 1.25rem;">
           <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.6rem;">Phase 2 — As trust builds</div>
           <div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink);">Lawyer reads flagged only</div>
-          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">No-action contracts can be signed off from the queue summary. Lawyer reads the full document only for Urgent and Review Required items.</div>
+          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">No-action contracts get signed off from the queue summary. Legal reads only what needs reading. Sales gets a live status feed — no more end-of-month scrambles to find out which deals are stuck.</div>
         </div>
         <div style="background: white; border: 1px solid var(--ink-12); border-radius: 10px; padding: 1.25rem;">
           <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.6rem;">Phase 3 — Full confidence</div>
           <div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink);">Spot checks on approved</div>
-          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">High-confidence no-action contracts are processed automatically. Lawyer spot-checks a sample. Focus shifts entirely to the contracts that actually need them.</div>
+          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">High-confidence contracts clear without a full read. Legal focuses on the deals that actually need them. Finance can forecast against real data — contracts clearing this week are revenue closeable this week.</div>
         </div>
       </div>
     </section>

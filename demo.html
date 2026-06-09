@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Review Queue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(145deg, #ECEEFF 0%, #F4EEFF 35%, #FDEEFF 65%, #ECEEFF 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1180px;
+      height: 90vh;
+      min-height: 640px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 12px 64px rgba(80,60,140,0.10), 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar {
+      width: 252px;
+      flex-shrink: 0;
+      border-right: 1px solid #F1F2F6;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-inner {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sidebar-inner::-webkit-scrollbar { width: 0; }
+
+    .app-logo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 4px 0;
+    }
+    .logo-mark {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: linear-gradient(135deg, #6366F1, #A855F7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .logo-name {
+      font-size: 0.95rem; font-weight: 600; color: #111827; margin-left: 10px; flex: 1;
+    }
+    .sidebar-toggle {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: #F3F4F6; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #9CA3AF; font-size: 12px;
+    }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: #F9FAFB; border-radius: 10px;
+      padding: 8px 10px; cursor: text;
+    }
+    .search-icon { color: #9CA3AF; font-size: 13px; flex-shrink: 0; }
+    .search-text { font-size: 0.8rem; color: #9CA3AF; flex: 1; }
+    .search-shortcut {
+      font-size: 0.65rem; color: #CBD5E1; background: #F1F5F9;
+      border: 1px solid #E2E8F0; border-radius: 4px; padding: 1px 5px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .sidebar-section { display: flex; flex-direction: column; gap: 2px; }
+    .section-label {
+      font-size: 0.6rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #9CA3AF; padding: 0 8px; margin-bottom: 4px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 10px;
+      cursor: pointer; font-size: 0.84rem; font-weight: 500;
+      color: #4B5563; transition: background 0.15s, color 0.15s;
+      position: relative; user-select: none;
+    }
+    .nav-item:hover { background: #F9FAFB; }
+    .nav-item.active {
+      background: linear-gradient(100deg, rgba(99,102,241,0.14) 0%, rgba(168,85,247,0.07) 60%, transparent 100%);
+      color: #4F46E5;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 20%; bottom: 20%;
+      width: 3px; border-radius: 0 3px 3px 0;
+      background: linear-gradient(180deg, #6366F1, #A855F7);
+    }
+    .nav-icon { width: 16px; text-align: center; flex-shrink: 0; font-size: 14px; }
+    .nav-count {
+      margin-left: auto; font-size: 0.65rem; font-weight: 600;
+      background: #F3F4F6; color: #6B7280; padding: 1px 6px; border-radius: 100px;
+    }
+    .nav-count.urgent { background: rgba(239,68,68,0.1); color: #DC2626; }
+
+    .inbox-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: 10px;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .inbox-item:hover { background: #F9FAFB; }
+    .inbox-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: white; font-weight: 600;
+    }
+    .inbox-name { font-size: 0.82rem; font-weight: 500; color: #1F2937; line-height: 1.2; }
+    .inbox-sub  { font-size: 0.68rem; color: #9CA3AF; margin-top: 1px; }
+
+    .team-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 10px; border-radius: 10px;
+    }
+    .team-avatar {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 700; color: white;
+    }
+    .team-name { font-size: 0.8rem; color: #374151; }
+    .team-you  { font-size: 0.7rem; color: #9CA3AF; margin-left: 3px; }
+    .team-dot  {
+      width: 7px; height: 7px; border-radius: 50%; background: #22C55E;
+      margin-left: auto; flex-shrink: 0;
+    }
+
+    /* ── CONTENT AREA ────────────────────────── */
+    .content-area {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+      min-width: 0;
+    }
+
+    .content-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; border-bottom: 1px solid #F1F2F6; flex-shrink: 0;
+    }
+    .content-title { font-size: 1rem; font-weight: 700; color: #111827; }
+    .filter-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;
+      padding: 5px 10px; font-size: 0.75rem; font-weight: 500; color: #4B5563;
+      cursor: pointer;
+    }
+    .header-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn-secondary {
+      background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;
+      padding: 6px 12px; font-size: 0.75rem; font-weight: 500; color: #374151;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366F1, #A855F7);
+      border: none; border-radius: 8px; padding: 6px 14px;
+      font-size: 0.75rem; font-weight: 600; color: white;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .stats-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; border-bottom: 1px solid #F1F2F6; flex-shrink: 0;
+      background: #FAFAFA;
+    }
+    .stat-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.72rem; font-weight: 600; padding: 4px 10px;
+      border-radius: 100px; white-space: nowrap;
+    }
+    .stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Contract list */
+    .contract-list { flex: 1; overflow-y: auto; }
+    .contract-list::-webkit-scrollbar { width: 4px; }
+    .contract-list::-webkit-scrollbar-track { background: transparent; }
+    .contract-list::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 2px; }
+
+    .list-header-row {
+      display: grid; align-items: center;
+      grid-template-columns: 28px 1fr 130px 180px 90px 36px;
+      gap: 8px; padding: 8px 20px;
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #9CA3AF;
+      border-bottom: 1px solid #F1F2F6;
+    }
+
+    .contract-row {
+      display: grid; align-items: center;
+      grid-template-columns: 28px 1fr 130px 180px 90px 36px;
+      gap: 8px; padding: 11px 20px;
+      border-bottom: 1px solid #F9FAFB;
+      cursor: pointer; transition: background 0.12s;
+    }
+    .contract-row:hover { background: #FAFBFF; }
+    .contract-row.selected { background: #F5F3FF; }
+
+    .cb {
+      width: 16px; height: 16px; border-radius: 4px;
+      border: 1.5px solid #D1D5DB; background: white; flex-shrink: 0;
+    }
+    .contract-name { font-size: 0.83rem; font-weight: 600; color: #1F2937; }
+    .contract-sub  { font-size: 0.66rem; color: #9CA3AF; margin-top: 2px; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 3px 9px; border-radius: 100px;
+      white-space: nowrap;
+    }
+    .pill-urgent  { background: rgba(220,38,38,0.09);  color: #B91C1C; }
+    .pill-review  { background: rgba(180,83,9,0.09);   color: #92400E; }
+    .pill-clear   { background: rgba(21,128,61,0.09);  color: #166534; }
+
+    .top-issue {
+      font-size: 0.73rem; color: #6B7280; line-height: 1.35;
+      overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
+
+    .contract-date { font-size: 0.72rem; color: #9CA3AF; }
+
+    .row-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.58rem; font-weight: 700; color: white; flex-shrink: 0;
+    }
+
+    /* ── DETAIL VIEW ─────────────────────────── */
+    .panel {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .detail-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px; border-bottom: 1px solid #F1F2F6; flex-shrink: 0;
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;
+      padding: 5px 10px; font-size: 0.75rem; font-weight: 500; color: #374151;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap;
+    }
+    .detail-title { font-size: 0.95rem; font-weight: 700; color: #111827; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .detail-meta  { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .type-tag { font-size: 0.7rem; color: #9CA3AF; background: #F3F4F6; padding: 3px 9px; border-radius: 100px; }
+
+    .detail-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
+    .detail-body::-webkit-scrollbar { width: 4px; }
+    .detail-body::-webkit-scrollbar-track { background: transparent; }
+    .detail-body::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 2px; }
+
+    .detail-metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px;
+    }
+    .metric-card {
+      background: #F9FAFB; border: 1px solid #F1F2F6; border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .metric-val { font-size: 1.5rem; font-weight: 700; color: #111827; line-height: 1; }
+    .metric-lbl { font-size: 0.62rem; color: #9CA3AF; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.07em; }
+
+    .info-box {
+      background: #F9FAFB; border: 1px solid #F1F2F6; border-radius: 10px;
+      padding: 13px 14px; margin-bottom: 10px;
+    }
+    .info-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9CA3AF; margin-bottom: 6px; }
+    .info-text  { font-size: 0.79rem; color: #374151; line-height: 1.65; }
+
+    .focus-box {
+      background: rgba(99,102,241,0.04); border: 1px solid rgba(99,102,241,0.15);
+      border-left: 3px solid #6366F1; border-radius: 0 8px 8px 0;
+      padding: 10px 13px; margin-bottom: 16px;
+      font-size: 0.78rem; color: #3730A3; line-height: 1.55;
+    }
+    .focus-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6366F1; margin-bottom: 4px; }
+
+    .clauses-heading { font-size: 0.78rem; font-weight: 700; color: #1F2937; margin-bottom: 8px; }
+
+    .clause-item { border: 1px solid #F1F2F6; border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+    .clause-trigger {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px; cursor: pointer;
+      font-size: 0.8rem; transition: background 0.1s; user-select: none;
+    }
+    .clause-trigger:hover { background: #FAFAFA; }
+    .clause-icon    { font-size: 12px; flex-shrink: 0; }
+    .clause-ref     { font-weight: 600; flex: 1; min-width: 0; }
+    .clause-snippet { font-size: 0.71rem; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .clause-chev    { color: #9CA3AF; font-size: 10px; flex-shrink: 0; transition: transform 0.2s; }
+    .clause-chev.open { transform: rotate(180deg); }
+
+    .clause-body     { padding: 12px 14px; background: #FAFAFA; border-top: 1px solid #F1F2F6; display: none; }
+    .clause-body.open { display: block; }
+    .clause-grid     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-label     { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; margin-bottom: 4px; }
+    .field-text      { font-size: 0.76rem; color: #374151; line-height: 1.6; }
+    .redline-block {
+      background: white; border: 1px solid #E5E7EB; border-radius: 7px;
+      padding: 9px 11px; font-family: 'DM Mono', monospace; font-size: 0.7rem;
+      color: #374151; margin-top: 7px; line-height: 1.6; white-space: pre-wrap;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.2s ease-out both; }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <!-- Logo -->
+      <div class="app-logo">
+        <div class="logo-mark">⚖️</div>
+        <span class="logo-name">Legal Review</span>
+        <div class="sidebar-toggle">☰</div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <span class="search-text">Search</span>
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <!-- Main nav -->
+      <div class="sidebar-section">
+        <div class="section-label">Main</div>
+        <div class="nav-item active" onclick="showQueue()">
+          <span class="nav-icon">📋</span>
+          Contracts
+          <span class="nav-count urgent">2</span>
+        </div>
+        <div class="nav-item" onclick="">
+          <span class="nav-icon">📊</span>
+          Analytics
+        </div>
+        <div class="nav-item" onclick="">
+          <span class="nav-icon">⚙️</span>
+          Settings
+        </div>
+      </div>
+
+      <!-- Inboxes -->
+      <div class="sidebar-section">
+        <div class="section-label">Inboxes</div>
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:linear-gradient(135deg,#6366F1,#A855F7);">📧</div>
+          <div>
+            <div class="inbox-name">Legal Inbox</div>
+            <div class="inbox-sub">contracts@portswigger.net</div>
+          </div>
+        </div>
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:linear-gradient(135deg,#EC4899,#F43F5E);">💼</div>
+          <div>
+            <div class="inbox-name">Customer Forms</div>
+            <div class="inbox-sub">order-forms@portswigger.net</div>
+          </div>
+        </div>
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:linear-gradient(135deg,#14B8A6,#06B6D4);">🤝</div>
+          <div>
+            <div class="inbox-name">Partner NDAs</div>
+            <div class="inbox-sub">partnerships@portswigger.net</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="sidebar-section">
+        <div class="section-label">Team</div>
+        <div class="team-item">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);">JG</div>
+          <span class="team-name">Jonathon G<span class="team-you">(You)</span></span>
+          <div class="team-dot"></div>
+        </div>
+        <div class="team-item">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#EC4899,#F97316);">SC</div>
+          <span class="team-name">Sarah Chen</span>
+        </div>
+        <div class="team-item">
+          <div class="team-avatar" style="background:linear-gradient(135deg,#14B8A6,#3B82F6);">RM</div>
+          <span class="team-name">Ravi Mehta</span>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ── CONTENT ────────────────────────────────────────── -->
+  <main class="content-area">
+
+    <!-- ═══ QUEUE ════════════════════════════════════════ -->
+    <div id="queueView" class="panel">
+
+      <div class="content-header">
+        <span class="content-title">Contracts</span>
+        <div class="filter-pill">All contracts &nbsp;▾</div>
+        <div class="header-actions">
+          <button class="btn-secondary">⬇ Export</button>
+          <button class="btn-primary">📥 Scan Inbox</button>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-chip" style="background:rgba(220,38,38,0.08);color:#B91C1C;">
+          <div class="stat-dot" style="background:#DC2626;"></div>2 Urgent
+        </div>
+        <div class="stat-chip" style="background:rgba(180,83,9,0.08);color:#92400E;">
+          <div class="stat-dot" style="background:#D97706;"></div>1 Review Required
+        </div>
+        <div class="stat-chip" style="background:rgba(21,128,61,0.08);color:#166534;">
+          <div class="stat-dot" style="background:#16A34A;"></div>1 No Action
+        </div>
+        <div style="margin-left:auto;font-size:0.7rem;color:#9CA3AF;">4 contracts · AI pre-reviewed · sorted by priority</div>
+      </div>
+
+      <div class="list-header-row">
+        <div></div>
+        <div>Contract</div>
+        <div>Status</div>
+        <div>Top Issue</div>
+        <div>Received</div>
+        <div></div>
+      </div>
+
+      <div class="contract-list">
+
+        <div class="contract-row" onclick="showDetail(0)">
+          <div class="cb"></div>
+          <div>
+            <div class="contract-name">GlobalTech Ventures NDA</div>
+            <div class="contract-sub">Mutual NDA · Customer</div>
+          </div>
+          <div><span class="status-pill pill-urgent">● Urgent</span></div>
+          <div class="top-issue" style="color:#B91C1C;">Cl.8 — New York governing law. PortSwigger standard is English law.</div>
+          <div class="contract-date">Today, 09:14</div>
+          <div class="row-avatar" style="background:linear-gradient(135deg,#6366F1,#A855F7);">JG</div>
+        </div>
+
+        <div class="contract-row" onclick="showDetail(1)">
+          <div class="cb"></div>
+          <div>
+            <div class="contract-name">Meridian Financial Order Form</div>
+            <div class="contract-sub">Customer Order Form · Customer</div>
+          </div>
+          <div><span class="status-pill pill-urgent">● Urgent</span></div>
+          <div class="top-issue" style="color:#B91C1C;">Cl.3.1 — Liability cap £500. Standard is 12 months' fees (£48k).</div>
+          <div class="contract-date">Today, 08:51</div>
+          <div class="row-avatar" style="background:linear-gradient(135deg,#EC4899,#F43F5E);">SC</div>
+        </div>
+
+        <div class="contract-row" onclick="showDetail(2)">
+          <div class="cb"></div>
+          <div>
+            <div class="contract-name">Synapse Cloud NDA</div>
+            <div class="contract-sub">Mutual NDA · Partner</div>
+          </div>
+          <div><span class="status-pill pill-review">◐ Review</span></div>
+          <div class="top-issue" style="color:#92400E;">Cl.3 — 12-month confidentiality term. Standard is 3 years minimum.</div>
+          <div class="contract-date">Yesterday, 16:30</div>
+          <div class="row-avatar" style="background:linear-gradient(135deg,#14B8A6,#06B6D4);">RM</div>
+        </div>
+
+        <div class="contract-row" onclick="showDetail(3)">
+          <div class="cb"></div>
+          <div>
+            <div class="contract-name">Acme Technology NDA</div>
+            <div class="contract-sub">Mutual NDA · Partner</div>
+          </div>
+          <div><span class="status-pill pill-clear">✓ No Action</span></div>
+          <div class="top-issue" style="color:#9CA3AF;">All 5 clauses match established positions. Standard boilerplate.</div>
+          <div class="contract-date">Yesterday, 11:05</div>
+          <div class="row-avatar" style="background:linear-gradient(135deg,#22C55E,#16A34A);">JG</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ DETAIL ═══════════════════════════════════════ -->
+    <div id="detailView" class="panel" style="display:none;">
+
+      <div class="detail-header">
+        <button class="back-btn" onclick="showQueue()">← Back</button>
+        <div class="detail-title" id="dTitle">—</div>
+        <div class="detail-meta">
+          <span id="dStatus" class="status-pill"></span>
+          <span id="dType" class="type-tag"></span>
+        </div>
+      </div>
+
+      <div class="detail-body">
+
+        <div class="detail-metrics">
+          <div class="metric-card">
+            <div class="metric-val" id="mConf">—</div>
+            <div class="metric-lbl">AI Confidence</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val" id="mFlag" style="color:#DC2626;">—</div>
+            <div class="metric-lbl">Flagged</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val" id="mNovel" style="color:#7C3AED;">—</div>
+            <div class="metric-lbl">Novel</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val" id="mApprv" style="color:#16A34A;">—</div>
+            <div class="metric-lbl">Approved</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">AI Summary</div>
+          <div class="info-text" id="dSummary">—</div>
+        </div>
+
+        <div class="focus-box">
+          <div class="focus-label">📌 Where to focus</div>
+          <div id="dFocus">—</div>
+        </div>
+
+        <div class="clauses-heading">Clause Analysis</div>
+        <div id="clauseList"></div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const DATA = [
+  {
+    name: 'GlobalTech Ventures NDA', type: 'Mutual NDA', status: 'urgent',
+    confidence: 94, flagged: 4, novel: 1, approved: 2,
+    summary: 'Mutual NDA from GlobalTech Ventures Inc. (Delaware). Contains four high-risk deviations: New York governing law, broad IP assignment to GlobalTech, unlimited liability, and one-sided indemnification. Non-solicitation is 3 years (acceptable). Senior review required before any engagement.',
+    focus: 'Read Clauses 4 (IP), 5 (Liability), 6 (Indemnification), and 8 (Governing Law) in full. Clauses 2 and 3 are standard — skip.',
+    issues: [
+      { s:'urgent', ref:'Clause 8 — Governing Law', snippet:'New York law governs.', finding:'New York law governs this agreement. PortSwigger\'s standard position is English law, England & Wales jurisdiction. This creates enforcement complexity and removes home-court advantage.', prec:'Governing law must be England and Wales (12 prior instances)', precN:12, action:'Redline to English law. If counterparty insists on US law, escalate to senior legal.', redline:'This Agreement shall be governed by and construed in accordance with the laws of England and Wales. The Parties submit to the non-exclusive jurisdiction of the courts of England and Wales.' },
+      { s:'urgent', ref:'Clause 4 — IP Ownership', snippet:'All work product assigned to GlobalTech.', finding:'All work product and inventions arising from this engagement assigned exclusively to GlobalTech. Direct contradiction of PortSwigger\'s standard position — we retain all IP.', prec:'IP must remain with originating party (12 prior instances)', precN:12, action:'Delete Clause 4 entirely, or replace with mutual IP retention language.', redline:'Each Party retains all right, title, and interest in and to its own intellectual property. Nothing in this Agreement grants either Party any rights in the other Party\'s IP.' },
+      { s:'urgent', ref:'Clause 5 — Limitation of Liability', snippet:'Uncapped — all damages, no limit.', finding:'Uncapped liability — both parties liable for all damages including indirect, special, and punitive without limit. PortSwigger\'s standard position requires a cap at 12 months\' fees.', prec:'Liability cap at 12 months fees (8 prior instances)', precN:8, action:'Introduce mutual liability cap. Carve out fraud and death/personal injury per standard.', redline:'Each Party\'s total liability shall not exceed the greater of (a) fees paid in the 12 months preceding the claim, or (b) £10,000. This does not apply to fraud, wilful misconduct, death or personal injury.' },
+      { s:'urgent', ref:'Clause 6 — Indemnification', snippet:'PortSwigger indemnifies GlobalTech only.', finding:'PortSwigger indemnifies GlobalTech only — no reciprocal indemnity. One-sided indemnification is unacceptable as a matter of standard practice.', prec:'Indemnification must be mutual (6 prior instances)', precN:6, action:'Redline to mutual indemnification, or delete entirely if NDA purpose is purely disclosure.', redline:null },
+      { s:'novel', ref:'Clause 3 — Term (Perpetual)', snippet:'Obligations survive in perpetuity.', finding:'Confidentiality obligations survive "in perpetuity, without limitation of time." No sunset clause. Unusual for a mutual NDA — may create unenforceable obligations under English law.', prec:null, precN:null, action:'Escalate to senior review. Novel clause — no prior PortSwigger precedent.', redline:'The obligations of confidentiality shall remain in effect for a period of five (5) years from the date of disclosure of the relevant Confidential Information.' },
+      { s:'approved', ref:'Clause 7 — Non-Solicitation', snippet:'3-year non-solicit on PortSwigger only.', finding:'3-year non-solicitation on PortSwigger only. Slightly asymmetric but within acceptable range. Standard is 12 months mutual.', prec:'Non-solicitation 12 months mutual (9 prior instances)', precN:9, action:'Note for negotiation. Not a blocker. Request mutual 12-month term if possible.', redline:null },
+      { s:'approved', ref:'Clause 2 — Obligations', snippet:'Standard confidentiality obligations.', finding:'Standard confidentiality obligations. Restricts use to evaluating potential collaboration. Aligned with standard position.', prec:'Standard confidentiality obligations (14 prior instances)', precN:14, action:'No action required.', redline:null },
+    ]
+  },
+  {
+    name: 'Meridian Financial Order Form', type: 'Customer Order Form', status: 'urgent',
+    confidence: 91, flagged: 3, novel: 1, approved: 3,
+    summary: 'SaaS order form from Meridian Financial for 50 Burp Suite Enterprise seats at £48k/year over 3 years. Three urgent deviations: near-worthless liability cap (£500), IP transfer of customisations to customer, and one-sided indemnification. Novel GDPR gap also identified.',
+    focus: 'Focus on Clauses 3 (£500 liability cap), 4 (IP ownership), and 5 (indemnification) — all must be redlined. Then check Clause 6 for GDPR. Clause 9 (governing law) is fine.',
+    issues: [
+      { s:'urgent', ref:'Clause 3.1–3.2 — Limitation of Liability', snippet:'Cap at £500 or 30 days\' fees.', finding:'Liability capped at greater of £500 or fees paid in preceding 30 days. For a £48k/year contract this is ~£4k effective cap. Clause 3.2 also exempts Supplier negligence — creating unlimited upside liability for PortSwigger.', prec:'Liability cap at 12 months fees (8 prior instances)', precN:8, action:'Redline cap to 12 months\' fees. Remove the supplier negligence carve-out.', redline:'3.1 In no event shall either Party\'s total aggregate liability exceed the fees paid by Customer in the 12 months immediately preceding the claim.\n3.2 Nothing in this clause limits liability for fraud, wilful misconduct, death or personal injury caused by negligence.' },
+      { s:'urgent', ref:'Clause 4.1–4.2 — Intellectual Property', snippet:'Customisations become customer property.', finding:'All customisations and configurations become customer property on delivery. Customer also receives a perpetual, irrevocable, sublicensable licence to use, modify, and adapt all software. Potentially transfers core IP rights.', prec:'IP must remain with PortSwigger (12 prior instances)', precN:12, action:'Delete 4.1. Replace 4.2 with a standard SaaS use-only licence for the term.', redline:'4.1 PortSwigger retains all right, title and interest in the software, including any configurations or customisations.\n4.2 PortSwigger grants Customer a non-exclusive, non-transferable licence to use the software during the term solely for Customer\'s internal business purposes.' },
+      { s:'urgent', ref:'Clause 5.1–5.2 — Indemnification', snippet:'PortSwigger indemnifies; Customer has none.', finding:'PortSwigger indemnifies Customer and all affiliates for any defect, breach, IP infringement or act/omission. Customer has no indemnification obligations whatsoever. Entirely one-sided.', prec:'Indemnification must be mutual (6 prior instances)', precN:6, action:'Redline to mutual IP indemnification only. Remove broad "any act or omission" trigger.', redline:null },
+      { s:'novel', ref:'Clause 6 — Data & Personal Information', snippet:'No GDPR / DPA referenced.', finding:'Clause acknowledges Supplier access to customer data but only requires confidentiality — no mention of GDPR, data processing agreement, or lawful basis. For a UK financial services firm this is a compliance gap.', prec:null, precN:null, action:'Escalate to senior review. A Data Processing Agreement (DPA) should be attached before signature.', redline:null },
+      { s:'review', ref:'Clause 1.1 — Payment Terms', snippet:'90-day payment terms.', finding:'90-day payment terms. PortSwigger\'s standard is 30 days. Extended terms impact cashflow on a £48k/year contract.', prec:'Payment within 30 days of invoice (7 prior instances)', precN:7, action:'Negotiate to 30 days. 60 days acceptable with approval. 90 days too long.', redline:'All invoices shall be payable within thirty (30) days of the invoice date.' },
+      { s:'review', ref:'Clause 2.1 — Auto-Renewal Notice', snippet:'7 days notice for non-renewal.', finding:'7-day notice period for non-renewal. Standard is 60 days. On a £48k/year contract, 7 days creates a near-automatic renewal trap.', prec:'Auto-renewal 60 days notice (5 prior instances)', precN:5, action:'Redline to 60-day notice period.', redline:'Either Party may provide written notice of non-renewal no fewer than sixty (60) days prior to the end of the then-current term.' },
+      { s:'approved', ref:'Clause 9 — Governing Law', snippet:'England and Wales — standard.', finding:'England and Wales governing law. Matches PortSwigger\'s standard position.', prec:'Governing law England and Wales (12 prior instances)', precN:12, action:'No action required.', redline:null },
+    ]
+  },
+  {
+    name: 'Synapse Cloud NDA', type: 'Mutual NDA', status: 'review_required',
+    confidence: 88, flagged: 2, novel: 0, approved: 4,
+    summary: 'Mutual NDA with Synapse Cloud Ltd for potential technology integration. Broadly standard structure with two deviations: 12-month confidentiality term (standard is 3 years) and no professional advisor disclosure carve-out. Low risk but should be corrected before signature.',
+    focus: 'Clauses 3 and 2 only. Everything else is standard. 5-minute fix: extend the term and add the professional advisor carve-out.',
+    issues: [
+      { s:'review', ref:'Clause 3 — Term', snippet:'12-month confidentiality period.', finding:'12-month confidentiality period. PortSwigger\'s standard position is minimum 3 years to protect commercially sensitive information shared during a partnership evaluation.', prec:'Confidentiality term minimum 3 years (10 prior instances)', precN:10, action:'Redline to 3 years from date of disclosure.', redline:'The obligations of confidentiality shall remain in effect for a period of three (3) years from the date of disclosure of the relevant Confidential Information.' },
+      { s:'review', ref:'Clause 2 — Permitted Disclosures', snippet:'No professional advisor carve-out.', finding:'No carve-out for disclosure to professional advisors (lawyers, accountants) bound by professional duties of confidentiality. Standard position includes this as a permitted disclosure.', prec:'Professional advisor carve-out required (11 prior instances)', precN:11, action:'Add standard carve-out permitting disclosure to professional advisors under equivalent confidentiality obligations.', redline:'The foregoing obligations do not apply to disclosure to professional advisors (including legal and financial advisors) who are subject to professional obligations of confidentiality equivalent to those in this Agreement.' },
+      { s:'approved', ref:'Clause 1 — Definition of Confidential Information', snippet:'Standard definition with exclusions.', finding:'Standard definition with appropriate exclusions (public domain, independent development, prior knowledge). Matches standard position.', prec:'Standard CI definition with carve-outs (13 prior instances)', precN:13, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 5 — Limitation of Liability', snippet:'Mutual cap at 12 months fees.', finding:'Mutual liability cap at 12 months\' fees with standard carve-outs. Exact match to standard position.', prec:'Liability cap at 12 months fees (8 prior instances)', precN:8, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 7 — Governing Law', snippet:'England and Wales — standard.', finding:'English law, non-exclusive England and Wales jurisdiction. Matches standard position.', prec:'Governing law England and Wales (12 prior instances)', precN:12, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 4 — IP Ownership', snippet:'Each party retains own IP.', finding:'Each party retains ownership of its own IP. No work-product assignment. Aligned with standard position.', prec:'IP must remain with originating party (12 prior instances)', precN:12, action:'No action required.', redline:null },
+    ]
+  },
+  {
+    name: 'Acme Technology NDA', type: 'Mutual NDA', status: 'no_action',
+    confidence: 96, flagged: 0, novel: 0, approved: 5,
+    summary: 'Standard mutual NDA with Acme Technology Ltd. All five key clauses reviewed and approved. English law, mutual obligations, 3-year term, standard liability cap, and proper carve-outs all present. No redlines required — can be signed off without reading.',
+    focus: 'No focused reading required. All clauses match established positions. Review summary and sign off.',
+    issues: [
+      { s:'approved', ref:'Clause 8 — Governing Law', snippet:'England and Wales — standard.', finding:'English law, non-exclusive England and Wales jurisdiction. Matches standard position exactly.', prec:'Governing law England and Wales (12 prior instances)', precN:12, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 1 — Definition of Confidential Information', snippet:'Standard definition with all exclusions.', finding:'Standard CI definition with all required exclusions: public domain, independent development, prior knowledge, compelled disclosure.', prec:'Standard CI definition with carve-outs (13 prior instances)', precN:13, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 3 — Term', snippet:'3-year term from date of disclosure.', finding:'3-year confidentiality period from date of disclosure. Matches standard 3-year minimum position.', prec:'Confidentiality term minimum 3 years (10 prior instances)', precN:10, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 5 — Limitation of Liability', snippet:'Mutual cap at 12 months fees.', finding:'Mutual cap at 12 months\' fees. Carve-outs for fraud and death/personal injury. Exact match to standard position.', prec:'Liability cap at 12 months fees (8 prior instances)', precN:8, action:'No action required.', redline:null },
+      { s:'approved', ref:'Clause 2 — Obligations & Disclosures', snippet:'Mutual obligations, full carve-out list.', finding:'Mutual obligations, professional advisor carve-out, legal compulsion carve-out, and standard permitted disclosure list all present.', prec:'Professional advisor carve-out required (11 prior instances)', precN:11, action:'No action required.', redline:null },
+    ]
+  }
+];
+
+const ISSUE_ICON  = { urgent:'🔴', novel:'🔵', review:'⚠️', approved:'✅' };
+const ISSUE_COLOR = { urgent:'#B91C1C', novel:'#6D28D9', review:'#92400E', approved:'#166534' };
+const ISSUE_SORT  = { urgent:0, novel:1, review:2, approved:3 };
+const STATUS_MAP  = {
+  urgent:          { cls:'pill-urgent', label:'● Urgent' },
+  review_required: { cls:'pill-review', label:'◐ Review Required' },
+  no_action:       { cls:'pill-clear',  label:'✓ No Action' },
+};
+
+function showQueue() {
+  document.getElementById('queueView').style.display  = 'flex';
+  document.getElementById('detailView').style.display = 'none';
+  document.querySelectorAll('.contract-row').forEach(r => r.classList.remove('selected'));
+}
+
+function showDetail(idx) {
+  const c = DATA[idx];
+
+  document.querySelectorAll('.contract-row').forEach((r, i) => r.classList.toggle('selected', i === idx));
+
+  document.getElementById('dTitle').textContent = c.name;
+
+  const sm = STATUS_MAP[c.status] || STATUS_MAP.review_required;
+  const sp = document.getElementById('dStatus');
+  sp.className = 'status-pill ' + sm.cls;
+  sp.textContent = sm.label;
+
+  document.getElementById('dType').textContent    = c.type;
+  document.getElementById('mConf').textContent    = c.confidence + '%';
+  document.getElementById('mFlag').textContent    = c.flagged;
+  document.getElementById('mNovel').textContent   = c.novel;
+  document.getElementById('mApprv').textContent   = c.approved;
+  document.getElementById('dSummary').textContent = c.summary;
+  document.getElementById('dFocus').textContent   = c.focus;
+
+  const list = document.getElementById('clauseList');
+  list.innerHTML = '';
+
+  const sorted = [...c.issues].sort((a, b) => (ISSUE_SORT[a.s]||2) - (ISSUE_SORT[b.s]||2));
+
+  sorted.forEach((iss, i) => {
+    const open = iss.s === 'urgent' || iss.s === 'novel';
+    const el   = document.createElement('div');
+    el.className = 'clause-item fade-in';
+    el.style.animationDelay = (i * 0.04) + 's';
+    el.innerHTML = `
+      <div class="clause-trigger" onclick="toggle(this)">
+        <span class="clause-icon">${ISSUE_ICON[iss.s]||'⚠️'}</span>
+        <span class="clause-ref" style="color:${ISSUE_COLOR[iss.s]||'#1F2937'};">${iss.ref}</span>
+        <span class="clause-snippet">${iss.snippet}</span>
+        <span class="clause-chev ${open?'open':''}">▼</span>
+      </div>
+      <div class="clause-body ${open?'open':''}">
+        <div class="clause-grid">
+          <div>
+            <div class="field-label">Finding</div>
+            <div class="field-text">${iss.finding}</div>
+            <div class="field-label" style="margin-top:10px;">Precedent</div>
+            <div class="field-text">${iss.prec
+              ? `${iss.prec}${iss.precN ? ' <span style="color:#9CA3AF">('+iss.precN+' prior instances)</span>' : ''}`
+              : '<em style="color:#9CA3AF;">None found — novel issue, escalate to senior review</em>'
+            }</div>
+          </div>
+          <div>
+            <div class="field-label">Recommended Action</div>
+            <div class="field-text">${iss.action}</div>
+            ${iss.redline ? `
+              <div class="field-label" style="margin-top:10px;">Suggested Redline</div>
+              <div class="redline-block">${iss.redline}</div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+
+  document.getElementById('queueView').style.display  = 'none';
+  document.getElementById('detailView').style.display = 'flex';
+  document.querySelector('.detail-body').scrollTop = 0;
+}
+
+function toggle(trigger) {
+  const body = trigger.nextElementSibling;
+  const chev = trigger.querySelector('.clause-chev');
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  chev.classList.toggle('open', !open);
+}
+</script>
+</body>
+</html>

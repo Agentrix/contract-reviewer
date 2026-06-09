@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Contract Review — System Vision</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream:    #F8F4EC;
+      --stone:    #EDE9DF;
+      --ink:      #1C1A16;
+      --ink-60:   rgba(28, 26, 22, 0.60);
+      --ink-35:   rgba(28, 26, 22, 0.35);
+      --ink-12:   rgba(28, 26, 22, 0.12);
+      --urgent:   #C0281A;
+      --review:   #A56800;
+      --clear:    #1A7038;
+      --ai-blue:  #1A4DC2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-display  { font-family: 'Instrument Serif', serif; }
+    .font-mono-lbl { font-family: 'DM Mono', monospace; }
+
+    /* Dot grid texture */
+    .dot-grid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(var(--ink-12) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--ink-35);
+    }
+
+    /* Hairline */
+    .hairline { height: 1px; background: var(--ink-12); width: 100%; }
+
+    /* Pipeline node */
+    .pipe-node {
+      background: white;
+      border: 1px solid var(--ink-12);
+      border-radius: 10px;
+      padding: 1.4rem 1.25rem;
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    .pipe-node-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: var(--ink-35);
+      margin-bottom: 0.6rem;
+    }
+    .pipe-node-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+    .pipe-node-desc {
+      font-size: 0.75rem;
+      color: var(--ink-60);
+      line-height: 1.55;
+    }
+
+    /* Arrow between nodes */
+    .pipe-arrow {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      color: var(--ink-35);
+      font-size: 1.1rem;
+    }
+
+    /* Tier card */
+    .tier-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--ink-12);
+      padding: 1.75rem 1.5rem;
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .tier-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 0;
+    }
+    .tier-urgent::before  { background: var(--urgent); }
+    .tier-review::before  { background: var(--review); }
+    .tier-clear::before   { background: var(--clear); }
+
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+    .badge-urgent { background: rgba(192,40,26,0.08); color: var(--urgent); }
+    .badge-review { background: rgba(165,104,0,0.08); color: var(--review); }
+    .badge-clear  { background: rgba(26,112,56,0.08);  color: var(--clear); }
+
+    .tier-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+    .tier-desc {
+      font-size: 0.78rem;
+      color: var(--ink-60);
+      line-height: 1.6;
+      margin-bottom: 1.1rem;
+    }
+
+    .trigger-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .trigger-list li {
+      font-size: 0.72rem;
+      color: var(--ink-60);
+      display: flex;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+    .trigger-list li::before {
+      content: '—';
+      font-family: 'DM Mono', monospace;
+      color: var(--ink-35);
+      flex-shrink: 0;
+    }
+
+    .tier-output-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--ink-35);
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .tier-output-text {
+      font-size: 0.75rem;
+      color: var(--ink);
+      font-weight: 400;
+      line-height: 1.55;
+    }
+
+    /* Playbook node */
+    .playbook-box {
+      background: white;
+      border: 1px solid var(--ink-12);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+    }
+
+    /* Stats row */
+    .stat-item .stat-num {
+      font-family: 'Instrument Serif', serif;
+      font-size: 2.4rem;
+      line-height: 1;
+      color: var(--ink);
+      font-weight: 400;
+    }
+    .stat-item .stat-lbl {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--ink-35);
+      margin-top: 0.3rem;
+    }
+
+    /* Pull quote */
+    .pull-quote {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.35rem;
+      line-height: 1.55;
+      color: var(--ink);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    /* Feedback loop arrow */
+    .loop-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--ink-35);
+      font-size: 0.95rem;
+      padding: 0 0.75rem;
+    }
+
+    /* Print / PDF friendly */
+    @media print {
+      body { background: white; }
+    }
+
+    /* Reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ── PAGE WRAPPER ───────────────────────────────── -->
+  <div style="max-width: 960px; margin: 0 auto; padding: 3.5rem 2.5rem 5rem;">
+
+    <!-- ── HEADER ──────────────────────────────────── -->
+    <header class="reveal" style="margin-bottom: 3rem;">
+      <div class="section-label" style="margin-bottom: 1.1rem;">PortSwigger Ltd &nbsp;/&nbsp; Legal Operations &nbsp;/&nbsp; 2026</div>
+      <h1 class="font-display" style="font-size: 3.2rem; line-height: 1.05; font-weight: 400; letter-spacing: -0.01em; margin-bottom: 1rem;">
+        AI-Assisted Contract<br /><em>Review System</em>
+      </h1>
+      <p style="font-size: 0.92rem; color: var(--ink-60); line-height: 1.65; max-width: 560px; font-weight: 300;">
+        A triage layer that reads every contract before your team does — sorting by urgency, citing precedent, and telling lawyers exactly where to focus their time.
+      </p>
+    </header>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── STATS ────────────────────────────────────── -->
+    <div class="reveal" style="display: flex; gap: 3.5rem; margin-bottom: 3rem; flex-wrap: wrap;">
+      <div class="stat-item">
+        <div class="stat-num">16</div>
+        <div class="stat-lbl">Established positions<br/>in the playbook</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">&lt;30s</div>
+        <div class="stat-lbl">AI review time<br/>per contract</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-lbl">Priority tiers<br/>every contract sorted</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">100%</div>
+        <div class="stat-lbl">Human in the loop —<br/>AI advises, lawyer decides</div>
+      </div>
+    </div>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── PIPELINE ──────────────────────────────────── -->
+    <section class="reveal" style="margin-bottom: 3rem;">
+      <div class="section-label" style="margin-bottom: 1.5rem;">01 &nbsp;— &nbsp;System Flow</div>
+
+      <!-- Row 1: Intake pipeline -->
+      <div style="display: flex; gap: 0; align-items: stretch; margin-bottom: 1rem;">
+
+        <!-- Email -->
+        <div class="pipe-node">
+          <div class="pipe-node-num">STEP 01</div>
+          <div class="pipe-node-title">📥 &nbsp;Email Inbox</div>
+          <div class="pipe-node-desc">Contract arrives from customer, vendor or partner. Gmail, upload, or any source.</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+
+        <!-- Intake -->
+        <div class="pipe-node">
+          <div class="pipe-node-num">STEP 02</div>
+          <div class="pipe-node-title">📄 &nbsp;Text Extraction</div>
+          <div class="pipe-node-desc">PDF, DOCX, or TXT. Contract text pulled automatically — no copy-paste.</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+
+        <!-- Playbook -->
+        <div class="pipe-node" style="border-color: rgba(26,77,194,0.25); background: rgba(26,77,194,0.03);">
+          <div class="pipe-node-num" style="color: rgba(26,77,194,0.5);">STEP 03</div>
+          <div class="pipe-node-title">🧠 &nbsp;Playbook Retrieval</div>
+          <div class="pipe-node-desc">Semantic search finds the relevant established positions from PortSwigger's legal playbook.</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+
+        <!-- AI -->
+        <div class="pipe-node" style="border-color: rgba(26,77,194,0.25); background: rgba(26,77,194,0.03);">
+          <div class="pipe-node-num" style="color: rgba(26,77,194,0.5);">STEP 04</div>
+          <div class="pipe-node-title">⚡ &nbsp;AI Analysis</div>
+          <div class="pipe-node-desc">Clause-by-clause review against retrieved positions. Deviations flagged. Precedents cited.</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+
+        <!-- Queue -->
+        <div class="pipe-node">
+          <div class="pipe-node-num">STEP 05</div>
+          <div class="pipe-node-title">⚖️ &nbsp;Review Queue</div>
+          <div class="pipe-node-desc">Contract lands in the queue, sorted by urgency. Lawyer opens to a ranked workload.</div>
+        </div>
+
+      </div>
+
+      <!-- Playbook detail note -->
+      <div style="display: flex; gap: 0.75rem; align-items: flex-start; background: rgba(26,77,194,0.04); border: 1px solid rgba(26,77,194,0.14); border-radius: 8px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;">
+        <span style="font-size: 0.9rem; flex-shrink: 0;">📚</span>
+        <div>
+          <span class="font-mono-lbl" style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ai-blue); opacity: 0.7;">The Playbook</span>
+          <p style="font-size: 0.75rem; color: var(--ink-60); margin-top: 0.25rem; line-height: 1.55;">
+            A structured knowledge base of PortSwigger's established legal positions — governing law, liability caps, IP ownership, payment terms, and more. The AI applies these positions; it does not invent them. Every finding cites the precedent it is based on.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── THREE TIERS ───────────────────────────────── -->
+    <section class="reveal" style="margin-bottom: 3rem;">
+      <div class="section-label" style="margin-bottom: 1.5rem;">02 &nbsp;— &nbsp;Triage Categories</div>
+
+      <div style="display: flex; gap: 1rem; align-items: stretch;">
+
+        <!-- URGENT -->
+        <div class="tier-card tier-urgent">
+          <div class="tier-badge badge-urgent">
+            <span>●</span> Urgent
+          </div>
+          <div class="tier-title">Needs immediate attention</div>
+          <div class="tier-desc">Contract deviates from established positions in ways that create real legal or commercial risk. Senior review before any signature.</div>
+
+          <div class="section-label" style="margin-bottom: 0.6rem;">What triggers it</div>
+          <ul class="trigger-list">
+            <li>Wrong governing law (non-England &amp; Wales)</li>
+            <li>IP assignment to third party</li>
+            <li>Uncapped liability exposure</li>
+            <li>One-sided indemnification clause</li>
+            <li>Perpetual confidentiality with no carve-outs</li>
+          </ul>
+
+          <div class="tier-output-label">What the lawyer gets</div>
+          <div class="tier-output-text">Flagged clauses with exact quote, established position, and suggested redline ready to paste into the contract.</div>
+        </div>
+
+        <!-- REVIEW REQUIRED -->
+        <div class="tier-card tier-review">
+          <div class="tier-badge badge-review">
+            <span>◐</span> Review Required
+          </div>
+          <div class="tier-title">Standard template, some deviations</div>
+          <div class="tier-desc">Broadly standard structure but contains clauses that deviate from agreed positions in ways worth a quick check.</div>
+
+          <div class="section-label" style="margin-bottom: 0.6rem;">What triggers it</div>
+          <ul class="trigger-list">
+            <li>Payment terms outside 30-day standard</li>
+            <li>Auto-renewal with short notice window</li>
+            <li>Non-solicitation period beyond 12 months</li>
+            <li>Novel clause with no matching precedent</li>
+            <li>Confidentiality term under 3 years</li>
+          </ul>
+
+          <div class="tier-output-label">What the lawyer gets</div>
+          <div class="tier-output-text">Summary of deviations, precedent count, recommended action per clause. Typically 2–3 minutes to resolve.</div>
+        </div>
+
+        <!-- NO ACTION -->
+        <div class="tier-card tier-clear">
+          <div class="tier-badge badge-clear">
+            <span>✓</span> No Action
+          </div>
+          <div class="tier-title">Boilerplate — matches standard</div>
+          <div class="tier-desc">All clauses checked against established positions. Everything matches. No deviations found. Can be signed off without reading.</div>
+
+          <div class="section-label" style="margin-bottom: 0.6rem;">What confirms it</div>
+          <ul class="trigger-list">
+            <li>English law, mutual obligations</li>
+            <li>Standard liability cap (12 months fees)</li>
+            <li>Mutual confidentiality, 3-year term</li>
+            <li>30-day payment terms</li>
+            <li>Standard carve-outs present</li>
+          </ul>
+
+          <div class="tier-output-label">What the lawyer gets</div>
+          <div class="tier-output-text">Confirmed position list with precedent counts. Sign-off takes seconds — high confidence, no reading required.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── WHAT THE LAWYER SEES ───────────────────────── -->
+    <section class="reveal" style="margin-bottom: 3rem;">
+      <div class="section-label" style="margin-bottom: 1.5rem;">03 &nbsp;— &nbsp;What the Lawyer Opens</div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+
+        <!-- Queue view -->
+        <div style="background: white; border: 1px solid var(--ink-12); border-radius: 12px; padding: 1.5rem;">
+          <div class="section-label" style="margin-bottom: 1rem;">Queue view — the day at a glance</div>
+
+          <!-- Mock queue items -->
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+
+            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; border-radius: 8px; border-left: 3px solid var(--urgent); background: rgba(192,40,26,0.04); border: 1px solid rgba(192,40,26,0.12); border-left-width: 3px;">
+              <span style="font-size: 0.7rem; font-weight: 600; color: var(--urgent);">● URGENT</span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">GlobalTech Ventures NDA</div>
+                <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace;">4 flagged &nbsp;·&nbsp; 1 novel &nbsp;·&nbsp; NY law</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; border-radius: 8px; border-left: 3px solid var(--review); background: rgba(165,104,0,0.04); border: 1px solid rgba(165,104,0,0.12); border-left-width: 3px;">
+              <span style="font-size: 0.7rem; font-weight: 600; color: var(--review);">◐ REVIEW</span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Meridian Financial Order Form</div>
+                <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace;">2 flagged &nbsp;·&nbsp; 90-day payment terms</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; border-radius: 8px; border-left: 3px solid var(--clear); background: rgba(26,112,56,0.04); border: 1px solid rgba(26,112,56,0.12); border-left-width: 3px;">
+              <span style="font-size: 0.7rem; font-weight: 600; color: var(--clear);">✓ CLEAR</span>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 0.78rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Acme Technology NDA</div>
+                <div style="font-size: 0.65rem; color: var(--ink-60); font-family: 'DM Mono', monospace;">5 approved &nbsp;·&nbsp; standard boilerplate</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Detail view -->
+        <div style="background: white; border: 1px solid var(--ink-12); border-radius: 12px; padding: 1.5rem;">
+          <div class="section-label" style="margin-bottom: 1rem;">Contract detail — clause briefing</div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+
+            <div style="padding: 0.75rem; background: var(--stone); border-radius: 8px;">
+              <div style="font-size: 0.65rem; font-family: 'DM Mono', monospace; color: var(--ink-35); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem;">AI Summary</div>
+              <div style="font-size: 0.74rem; color: var(--ink-60); line-height: 1.55;">Mutual NDA with GlobalTech Ventures. Significant deviations — NY law, IP assignment, and uncapped liability require senior review before signing.</div>
+            </div>
+
+            <div style="padding: 0.75rem; border: 1px solid rgba(192,40,26,0.2); border-radius: 8px; border-left: 3px solid var(--urgent);">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                <span style="font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--urgent);">● URGENT &nbsp; Clause 8 — Governing Law</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--ink-60); line-height: 1.5;">New York law. PortSwigger's standard position is English law. Redline: replace with <em>"England and Wales"</em>.</div>
+            </div>
+
+            <div style="padding: 0.75rem; border: 1px solid rgba(192,40,26,0.2); border-radius: 8px; border-left: 3px solid var(--urgent);">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                <span style="font-size: 0.65rem; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--urgent);">● URGENT &nbsp; Clause 4 — IP Ownership</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--ink-60); line-height: 1.5;">All work product assigned to GlobalTech. Contradicts PortSwigger's standard position. 12 prior instances flagged. Redline provided.</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── FEEDBACK LOOP ──────────────────────────────── -->
+    <section class="reveal" style="margin-bottom: 3rem;">
+      <div class="section-label" style="margin-bottom: 1.5rem;">04 &nbsp;— &nbsp;The Learning Loop</div>
+
+      <div style="display: flex; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 1rem;">
+
+        <div class="playbook-box" style="flex: 1; min-width: 160px; text-align: center;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ai-blue); opacity: 0.7; margin-bottom: 0.4rem;">Playbook</div>
+          <div style="font-size: 0.82rem; font-weight: 500; color: var(--ink);">16 established<br/>positions</div>
+        </div>
+
+        <div class="loop-arrow">→</div>
+
+        <div class="playbook-box" style="flex: 1; min-width: 160px; text-align: center;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ai-blue); opacity: 0.7; margin-bottom: 0.4rem;">AI Analysis</div>
+          <div style="font-size: 0.82rem; font-weight: 500; color: var(--ink);">Applies positions<br/>to new contracts</div>
+        </div>
+
+        <div class="loop-arrow">→</div>
+
+        <div class="playbook-box" style="flex: 1; min-width: 160px; text-align: center;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.4rem;">Lawyer Review</div>
+          <div style="font-size: 0.82rem; font-weight: 500; color: var(--ink);">Approves, redlines,<br/>or escalates</div>
+        </div>
+
+        <div class="loop-arrow">→</div>
+
+        <div class="playbook-box" style="flex: 1; min-width: 160px; text-align: center;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.4rem;">Precedent Count</div>
+          <div style="font-size: 0.82rem; font-weight: 500; color: var(--ink);">Decision logged,<br/>confidence increases</div>
+        </div>
+
+        <div class="loop-arrow">↩</div>
+
+        <div style="padding: 0.5rem 0.75rem; background: rgba(26,112,56,0.06); border: 1px solid rgba(26,112,56,0.2); border-radius: 8px; min-width: 140px; text-align: center;">
+          <div style="font-size: 0.72rem; font-weight: 500; color: var(--clear);">Playbook gets<br/>stronger over time</div>
+        </div>
+
+      </div>
+
+      <p style="font-size: 0.75rem; color: var(--ink-35); margin-top: 1rem; line-height: 1.5; font-family: 'DM Mono', monospace;">
+        Novel clauses — those with no matching precedent — are flagged separately and escalated to senior review. Once a decision is made, that decision becomes the next precedent.
+      </p>
+    </section>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── PULL QUOTE ─────────────────────────────────── -->
+    <section class="reveal" style="margin-bottom: 3rem;">
+      <div style="max-width: 680px; margin: 0 auto; text-align: center; padding: 2rem 0;">
+        <div class="section-label" style="margin-bottom: 1.5rem;">The principle</div>
+        <p class="pull-quote">
+          "The AI does not invent legal positions. It applies positions your team has already agreed on — retrieved from a structured playbook, cited in every finding. The lawyer stays in control. The AI removes the noise."
+        </p>
+      </div>
+    </section>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── TRUST LADDER ───────────────────────────────── -->
+    <section class="reveal" style="margin-bottom: 3rem;">
+      <div class="section-label" style="margin-bottom: 1.5rem;">05 &nbsp;— &nbsp;Phased Rollout — Trust Ladder</div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+
+        <div style="background: white; border: 1px solid var(--ink-12); border-radius: 10px; padding: 1.25rem;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.6rem;">Phase 1 — Now</div>
+          <div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink);">AI advises, lawyer reads all</div>
+          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">Every contract gets pre-reviewed. Lawyer still reads everything but arrives briefed — knows where to focus and what the AI found before opening the document.</div>
+        </div>
+
+        <div style="background: white; border: 1px solid var(--ink-12); border-radius: 10px; padding: 1.25rem;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.6rem;">Phase 2 — As trust builds</div>
+          <div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink);">Lawyer reads flagged only</div>
+          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">No-action contracts can be signed off from the queue summary. Lawyer reads the full document only for Urgent and Review Required items.</div>
+        </div>
+
+        <div style="background: white; border: 1px solid var(--ink-12); border-radius: 10px; padding: 1.25rem;">
+          <div class="font-mono-lbl" style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-35); margin-bottom: 0.6rem;">Phase 3 — Full confidence</div>
+          <div style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ink);">Spot checks on approved</div>
+          <div style="font-size: 0.73rem; color: var(--ink-60); line-height: 1.55;">High-confidence no-action contracts are processed automatically. Lawyer spot-checks a sample. Focus shifts entirely to the contracts that actually need them.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hairline" style="margin-bottom: 3rem;"></div>
+
+    <!-- ── FOOTER ────────────────────────────────────── -->
+    <footer class="reveal" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div class="font-display" style="font-size: 1.2rem; font-style: italic; margin-bottom: 0.3rem;">PortSwigger Legal Review System</div>
+        <div class="section-label">AI Pioneer Application &nbsp;·&nbsp; Jonathon Graham &nbsp;·&nbsp; June 2026</div>
+      </div>
+      <div style="text-align: right;">
+        <div class="section-label" style="margin-bottom: 0.3rem;">Built and demonstrated at</div>
+        <div style="font-size: 0.8rem; color: var(--ink-60);">github.com / contract-reviewer</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Staggered reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('in'), i * 60);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Trigger visible elements immediately on load
+    setTimeout(() => {
+      reveals.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('in');
+          observer.unobserve(el);
+        }
+      });
+    }, 100);
+  </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+MUTUAL NON-DISCLOSURE AGREEMENT
+
+This Mutual Non-Disclosure Agreement ("Agreement") is entered into as of the date last signed below between:
+
+PortSwigger Ltd, a company registered in England and Wales (Company No. 07232777), whose registered office is at Kingsfield Court, Chester Business Park, Chester, CH4 9RF ("PortSwigger"); and
+
+Acme Technology Solutions Ltd, a company registered in England and Wales (Company No. 09876543), whose registered office is at 123 Business Park, London, EC1A 1BB ("Acme").
+
+Each party may be referred to individually as a "Party" and collectively as the "Parties."
+
+1. PURPOSE
+
+The Parties wish to explore a potential business relationship concerning software integration services (the "Purpose") and may disclose confidential information to one another in connection with that Purpose.
+
+2. DEFINITION OF CONFIDENTIAL INFORMATION
+
+2.1 "Confidential Information" means any information disclosed by one Party (the "Disclosing Party") to the other Party (the "Receiving Party"), whether orally, in writing, or by any other means, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure.
+
+2.2 Confidential Information does not include information that:
+(a) is or becomes publicly available other than through a breach of this Agreement;
+(b) was already known to the Receiving Party at the time of disclosure, as evidenced by written records predating the disclosure;
+(c) is independently developed by the Receiving Party without reference to or use of the Confidential Information;
+(d) is received from a third party without restriction and without breach of any obligation of confidentiality; or
+(e) is required to be disclosed by applicable law, regulation, or court order, provided that the Receiving Party gives the Disclosing Party prompt written notice of such requirement and cooperates with the Disclosing Party's efforts to seek a protective order.
+
+3. OBLIGATIONS OF CONFIDENTIALITY
+
+3.1 Each Receiving Party shall:
+(a) hold the Disclosing Party's Confidential Information in strict confidence;
+(b) use the Confidential Information solely for the Purpose;
+(c) not disclose the Confidential Information to any third party without the prior written consent of the Disclosing Party.
+
+3.2 Confidential Information may be disclosed to the Receiving Party's employees, officers, and professional advisers (legal, financial, or otherwise) who: (i) have a need to know such information for the Purpose; and (ii) are bound by professional duties of confidence or equivalent written obligations no less protective than those set out in this Agreement.
+
+4. TERM
+
+The obligations of confidentiality set out in this Agreement shall apply from the date of this Agreement and shall survive for a period of three (3) years from the date of disclosure of the relevant Confidential Information.
+
+5. RETURN AND DESTRUCTION
+
+Upon written request by the Disclosing Party, or upon termination of this Agreement, the Receiving Party shall promptly return or destroy all Confidential Information in its possession, and certify in writing that it has done so.
+
+6. INTELLECTUAL PROPERTY
+
+Nothing in this Agreement shall be construed as granting any right, title, or licence in or to either Party's intellectual property. Each Party retains all ownership rights in its own intellectual property, including any pre-existing background IP.
+
+7. LIABILITY
+
+7.1 Each Party's aggregate liability to the other under or in connection with this Agreement shall not exceed £10,000.
+
+7.2 Neither Party shall be liable to the other for any indirect, special, incidental, or consequential loss or damage arising out of or in connection with this Agreement, even if advised of the possibility of such loss or damage.
+
+8. NON-SOLICITATION
+
+For a period of twelve (12) months following termination of this Agreement, neither Party shall solicit for employment any employee of the other Party who was directly involved in the performance of this Agreement, without the prior written consent of the employing Party.
+
+9. INDEMNIFICATION
+
+Each Party (the "Indemnifying Party") shall indemnify and hold harmless the other Party from and against any losses, damages, costs, and expenses arising from the Indemnifying Party's material breach of this Agreement or wilful misconduct.
+
+10. GOVERNING LAW AND JURISDICTION
+
+This Agreement shall be governed by and construed in accordance with the laws of England and Wales. Each Party irrevocably submits to the exclusive jurisdiction of the courts of England and Wales in respect of any dispute or claim arising out of or in connection with this Agreement.
+
+11. ASSIGNMENT
+
+Neither Party may assign its rights or obligations under this Agreement without the prior written consent of the other Party, except to an affiliate or in connection with a merger, acquisition, or sale of all or substantially all of its assets, provided that prior written notice is given.
+
+12. ENTIRE AGREEMENT
+
+This Agreement constitutes the entire agreement between the Parties with respect to its subject matter and supersedes all prior agreements, representations, warranties, and understandings of the Parties with respect thereto. No amendment to this Agreement shall be effective unless made in writing and signed by both Parties.
+
+13. GENERAL
+
+13.1 If any provision of this Agreement is held to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
+
+13.2 No failure or delay by either Party in exercising any right under this Agreement shall operate as a waiver of that right.
+
+SIGNED by the duly authorised representatives of the Parties:
+
+For and on behalf of PortSwigger Ltd:
+
+Signature: ___________________
+Name:
+Title:
+Date:
+
+For and on behalf of Acme Technology Solutions Ltd:
+
+Signature: ___________________
+Name:
+Title:
+Date:

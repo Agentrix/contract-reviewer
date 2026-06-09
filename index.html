@@ -785,6 +785,9 @@ function initReveal() {
     });
   }, 100);
 }
+
+// Run on initial load since System Vision is the default view
+window.addEventListener('DOMContentLoaded', initReveal);
 </script>
 </body>
 </html>
